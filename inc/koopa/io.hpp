@@ -7,32 +7,36 @@
 
 namespace koopa {
   class input {
-    std::string_view m_chars;
+    // As of 08/22, std::distance is not constexpr if we store string_views in Windows
+    // Therefore, handcrafted substitute it is
+    const char * m_data;
+    size_t m_len;
 
   public:
-    explicit constexpr input(std::string_view c) noexcept : m_chars(c) {
+    explicit constexpr input(std::string_view c) noexcept : m_data { c.data() }, m_len { c.size() } {
     }
 
     [[nodiscard]] constexpr explicit operator bool() const noexcept {
-      return !m_chars.empty();
+      return m_len > 0;
     }
 
     [[nodiscard]] constexpr bool operator==(const input & o) const noexcept {
-      return m_chars == o.m_chars;
+      return std::string_view { m_data, m_len } == std::string_view { o.m_data, o.m_len };
     }
 
     [[nodiscard]] constexpr char peek() const noexcept {
-      return m_chars[0];
+      return *m_data;
     }
     [[nodiscard]] constexpr std::string_view peek(size_t n) const noexcept {
-      return m_chars.substr(0, n);
+      return std::string_view { m_data, n > m_len ? m_len : n };
     }
     [[nodiscard]] constexpr input take(size_t n) const noexcept {
-      return input { m_chars.substr(n) };
+      const auto nn = n > m_len ? m_len : n;
+      return input { std::string_view { m_data + nn, m_len - nn } };
     }
 
     [[nodiscard]] constexpr size_t distance(const input o) const noexcept {
-      return o.m_chars.data() - m_chars.data();
+      return std::distance(o.m_data, m_data);
     }
   };
 
