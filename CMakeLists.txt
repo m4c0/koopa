@@ -8,6 +8,9 @@ target_compile_features(koopa INTERFACE cxx_std_20)
 target_include_directories(koopa INTERFACE inc)
 
 add_library(test-koopa STATIC
+  src/combiner.cpp
+  src/constants.cpp
   src/io.cpp 
+  src/matcher.cpp
   src/str.cpp)
 target_link_libraries(test-koopa PUBLIC koopa)
