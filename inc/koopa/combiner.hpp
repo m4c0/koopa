@@ -38,14 +38,14 @@ namespace koopa {
 
   template<parser PA, parser PB>
   static constexpr auto operator-(PA && pa, PB && pb) noexcept {
-    return combine(std::forward<PA>(pa), std::forward<PB>(pb), [](auto r, auto) noexcept {
+    return combine(pa, pb, [](auto r, auto) noexcept {
       return r;
     });
   }
 
   template<parser PA, parser PB>
   static constexpr auto operator|(PA && pa, PB && pb) noexcept {
-    return [pa = std::forward<PA>(pa), pb = std::forward<PB>(pb)](input in) noexcept {
+    return [pa, pb](input in) noexcept -> output<result_of<PA>> {
       const auto ra = pa(in);
       if (ra) return ra;
       const auto rb = pb(in);
@@ -56,7 +56,7 @@ namespace koopa {
 
   template<parser P>
   static constexpr auto maybe(P && p) noexcept {
-    return [p = std::forward<P>(p)](const input in) noexcept {
+    return [p](const input in) noexcept -> output<std::optional<result_of<P>>> {
       const auto r = p(in);
       const auto v = r ? std::optional { *r } : std::nullopt;
       return r.with_value(v);
@@ -65,7 +65,7 @@ namespace koopa {
 
   template<parser P, typename F>
   static constexpr auto map(F && f, P && p) noexcept {
-    return [f = std::forward<F>(f), p = std::forward<P>(p)](input in) noexcept {
+    return [f, p](input in) noexcept {
       return f(p(in));
     };
   }
@@ -86,7 +86,8 @@ namespace koopa {
 
   template<parser If, parser Then, parser Else>
   static constexpr auto ifelse(If && i, Then && t, Else && e) noexcept {
-    return [i = std::forward<If>(i), t = std::forward<Then>(t), e = std::forward<Else>(e)](input in) noexcept {
+    using T = result_of<Then>;
+    return [i, t, e](input in) noexcept -> output<T> {
       const auto pi = i(in);
       return pi ? t(pi.remainder()) : e(in);
     };
@@ -94,7 +95,7 @@ namespace koopa {
 
   template<parser P>
   static constexpr auto until(P && p) noexcept {
-    return [p = std::forward<P>(p)](const input in) noexcept {
+    return [p](const input in) noexcept -> output<std::string_view> {
       input sin = in;
       int idx = 0;
       while (sin && !p(sin)) {
@@ -107,7 +108,7 @@ namespace koopa {
 
   template<parser P>
   static constexpr auto whilst(P && p) noexcept {
-    return [p = std::forward<P>(p)](const input in) noexcept {
+    return [p](const input in) noexcept -> output<std::string_view> {
       input sin = in;
       // Much better would be:
       // while (const auto r = p(sin)) {

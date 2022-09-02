@@ -5,7 +5,7 @@
 namespace koopa {
   template<typename T>
   static constexpr auto constant(T && t) noexcept {
-    return [t = std::forward<T>(t)](input in) noexcept {
+    return [t](input in) noexcept {
       return output<T> { t, in };
     };
   }
