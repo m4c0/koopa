@@ -8,9 +8,9 @@
 namespace koopa {
   template<parser PA, parser PB, typename AB>
   static constexpr auto combine(PA && pa, PB && pb, AB && fn) noexcept {
-    return [pa = std::forward<PA>(pa), pb = std::forward<PB>(pb), fn = std::forward<AB>(fn)](const input in) noexcept {
-      using T = std::invoke_result_t<AB, result_of<PA>, result_of<PB>>;
+    using T = std::invoke_result_t<AB, result_of<PA>, result_of<PB>>;
 
+    return [pa, pb, fn](const input in) noexcept -> output<T> {
       const auto ra = pa(in);
       if (!ra) return ra.template with_error_type<T>();
 
@@ -23,9 +23,17 @@ namespace koopa {
 
   template<parser PA, parser PB>
   static constexpr auto operator,(PA && pa, PB && pb) noexcept {
-    return combine(std::forward<PA>(pa), std::forward<PB>(pb), [](auto, auto r) noexcept {
-      return r;
-    });
+    using T = result_of<PB>;
+
+    return [pa, pb](const input in) noexcept -> output<T> {
+      const auto ra = pa(in);
+      if (!ra) return ra.template with_error_type<T>();
+
+      const auto rb = pb(ra.remainder());
+      if (!rb) return rb.template with_error_type<T>();
+
+      return rb;
+    };
   }
 
   template<parser PA, parser PB>
@@ -64,9 +72,8 @@ namespace koopa {
 
   template<parser P, typename F>
   static constexpr auto fmap(F && f, P && p) noexcept {
-    return [f = std::forward<F>(f), p = std::forward<P>(p)](input in) noexcept {
-      using T = std::invoke_result_t<F, decltype(*p(in))>;
-
+    using T = std::invoke_result_t<F, result_of<P>>;
+    return [f, p](input in) noexcept -> output<T> {
       const auto r = p(in);
       if (!r) return r.template with_error_type<T>();
       if constexpr (std::is_member_function_pointer_v<F>) {
