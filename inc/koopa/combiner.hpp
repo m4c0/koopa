@@ -38,9 +38,17 @@ namespace koopa {
 
   template<parser PA, parser PB>
   static constexpr auto operator-(PA && pa, PB && pb) noexcept {
-    return combine(pa, pb, [](auto r, auto) noexcept {
-      return r;
-    });
+    using T = result_of<PA>;
+
+    return [pa, pb](const input in) noexcept -> output<T> {
+      const auto ra = pa(in);
+      if (!ra) return ra.template with_error_type<T>();
+
+      const auto rb = pb(ra.remainder());
+      if (!rb) return rb.template with_error_type<T>();
+
+      return rb.with_value(*ra);
+    };
   }
 
   template<parser PA, parser PB>
