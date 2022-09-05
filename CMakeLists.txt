@@ -7,9 +7,11 @@ add_library(koopa INTERFACE)
 target_compile_features(koopa INTERFACE cxx_std_20)
 target_include_directories(koopa INTERFACE inc)
 
-add_library(test-koopa STATIC
+add_executable(test-koopa
+  src/binary.cpp
   src/combiner.cpp
   src/constants.cpp
+  src/dummy.cpp
   src/io.cpp 
   src/matcher.cpp
   src/str.cpp)
