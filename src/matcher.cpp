@@ -3,6 +3,10 @@
 using namespace koopa;
 using namespace std::string_view_literals;
 
+static_assert(any()(""_i) == fail<char>("eof while waiting for any data", ""_i));
+static_assert(any()("a"_i) == output { 'a', ""_i });
+static_assert(any()("ba"_i) == output { 'b', "a"_i });
+
 static_assert(match('a')(""_i) == fail<char>("eof while waiting for char", ""_i));
 static_assert(match('a')("a"_i) == output { 'a', ""_i });
 static_assert(match('a')("aa"_i) == output { 'a', "a"_i });
