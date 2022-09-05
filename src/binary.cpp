@@ -17,7 +17,7 @@ namespace koopa {
       const auto sv = in.peek(2);
       if (sv.size() != 2) return fail<uint16_t>("eof while expecting u16le", in);
       const auto a = static_cast<uint16_t>(static_cast<uint8_t>(sv[0]));
-      const auto b = static_cast<uint16_t>(static_cast<uint8_t>(sv[1]) << 8);
+      const auto b = static_cast<uint16_t>(static_cast<uint8_t>(sv[1]) << 8U);
       return { static_cast<uint16_t>(b | a), in.take(2) };
     };
   }
@@ -26,9 +26,9 @@ namespace koopa {
       const auto sv = in.peek(4);
       if (sv.size() != 4) return fail<uint32_t>("eof while expecting u32le", in);
       const auto a = static_cast<uint32_t>(static_cast<uint8_t>(sv[0]));
-      const auto b = static_cast<uint32_t>(static_cast<uint8_t>(sv[1]) << 8);
-      const auto c = static_cast<uint32_t>(static_cast<uint8_t>(sv[2]) << 16);
-      const auto d = static_cast<uint32_t>(static_cast<uint8_t>(sv[3]) << 24);
+      const auto b = static_cast<uint32_t>(static_cast<uint8_t>(sv[1]) << 8U);
+      const auto c = static_cast<uint32_t>(static_cast<uint8_t>(sv[2]) << 16U);
+      const auto d = static_cast<uint32_t>(static_cast<uint8_t>(sv[3]) << 24U);
       return { d | c | b | a, in.take(4) };
     };
   }
@@ -87,3 +87,17 @@ static_assert(t_mu16le("\1\1eh"_i) == output<uint16_t> { 257, "eh"_i });        
 static constexpr const auto t_mu32le = match_u32le(0x01020304);                              // NOLINT
 static_assert(t_mu32le("\1\1\1\1h"_i) == fail<uint32_t>("mismatched u32le", "\1\1\1\1h"_i)); // NOLINT
 static_assert(t_mu32le("\4\3\2\1h"_i) == output<uint32_t> { 0x01020304, "h"_i });            // NOLINT
+
+#include "koopa/combiner.hpp"
+
+struct wad_header {
+  uint32_t num_lumps;
+  uint32_t info_table_ofs;
+};
+static constexpr const auto poc_wad_header =
+    (match_u32le('DAWI'), combine(take_u32le(), take_u32le(), [](auto nlumps, auto tblofs) noexcept {
+       return wad_header { nlumps, tblofs };
+     }));
+static_assert(!poc_wad_header("PWAD\3\0\0\0\1\0\0\0"_i));
+static_assert((*poc_wad_header("IWAD\3\0\0\0\1\0\0\0"_i)).num_lumps == 3);
+static_assert((*poc_wad_header("IWAD\3\0\0\0\1\0\0\0"_i)).info_table_ofs == 1);
