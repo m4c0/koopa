@@ -3,6 +3,13 @@
 #include "koopa/io.hpp"
 
 namespace koopa {
+  static constexpr auto any() noexcept {
+    return [](const input in) noexcept {
+      if (!in) return fail<char>("eof while waiting for any data", in);
+      return output<char> { in.peek(), in.take(1) };
+    };
+  }
+
   static constexpr auto match(char chr) noexcept {
     return [chr](const input in) noexcept {
       if (!in) return fail<char>("eof while waiting for char", in);
