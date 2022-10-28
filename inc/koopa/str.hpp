@@ -64,6 +64,9 @@ namespace koopa {
     [[nodiscard]] constexpr str operator+(const str & o) const {
       return *this + *o;
     }
+    [[nodiscard]] constexpr str operator+(char c) const {
+      return *this + str { &c, 1, false };
+    }
 
     [[nodiscard]] constexpr bool operator==(const str & o) const noexcept {
       return **this == *o;

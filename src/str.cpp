@@ -9,4 +9,4 @@ static_assert("test"_s == "test"_s);
 static_assert("aaa"_s + "bb"_s == "aaabb"_s);
 static_assert(*(std::move("a"_s)) == "a");
 static_assert(str { "asd"sv } == "asd"_s);
-static_assert("aaa"_s + "bb"sv + "c" == "aaabbc"_s);
+static_assert("aaa"_s + "bb"sv + "c" + 'd' == "aaabbcd"_s);

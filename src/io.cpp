@@ -21,6 +21,7 @@ static_assert(*output { 'a', "b"_i } == 'a');
 static_assert(output { 'a', "b"_i }.remainder() == "b"_i);
 
 static_assert(fail<char>("test", ""_i).error() == error { "test"_s });
+static_assert(fail<char>("test"_s, ""_i).error() == error { "test"_s });
 
 static_assert(output { 'a', "b"_i } == output { 'a', "b"_i });
 static_assert(output { '0', "b"_i } != output { 'a', "b"_i });

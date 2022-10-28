@@ -9,19 +9,19 @@ static constexpr const auto p = combine(match('a'), match("b"), [](char a, std::
   return a == 'a' && b == "b";
 });
 
-static_assert(p(""_i) == fail<bool>("eof while waiting for char", ""_i));
-static_assert(p("a"_i) == fail<bool>("mismatched string", ""_i));
-static_assert(p("b"_i) == fail<bool>("mismatched char", "b"_i));
-static_assert(p("ax"_i) == fail<bool>("mismatched string", "x"_i));
+static_assert(p(""_i) == fail<bool>("eof while waiting for 'a'", ""_i));
+static_assert(p("a"_i) == fail<bool>("expecting 'b' got ''", ""_i));
+static_assert(p("b"_i) == fail<bool>("expecting 'a' got 'b'", "b"_i));
+static_assert(p("ax"_i) == fail<bool>("expecting 'b' got 'x'", "x"_i));
 static_assert(p("ab"_i) == output { true, ""_i });
 static_assert(p("abc"_i) == output { true, "c"_i });
 
 static constexpr const auto q = (match('a'), match('b'), match('c'));
 
-static_assert(q(""_i) == fail<char>("eof while waiting for char", ""_i));
-static_assert(q("a"_i) == fail<char>("eof while waiting for char", ""_i));
-static_assert(q("b"_i) == fail<char>("mismatched char", "b"_i));
-static_assert(q("ab"_i) == fail<char>("eof while waiting for char", ""_i));
+static_assert(q(""_i) == fail<char>("eof while waiting for 'a'", ""_i));
+static_assert(q("a"_i) == fail<char>("eof while waiting for 'b'", ""_i));
+static_assert(q("b"_i) == fail<char>("expecting 'a' got 'b'", "b"_i));
+static_assert(q("ab"_i) == fail<char>("eof while waiting for 'c'", ""_i));
 static_assert(q("abc"_i) == output { 'c', ""_i });
 static_assert(q("abcd"_i) == output { 'c', "d"_i });
 
@@ -43,9 +43,9 @@ static_assert(s("ababa"_i) == output { "abab"sv, "a"_i });
 
 static constexpr const auto t = match('a') - match("b");
 
-static_assert(t(""_i) == fail<char>("eof while waiting for char", ""_i));
-static_assert(t("a"_i) == fail<char>("mismatched string", ""_i));
-static_assert(t("b"_i) == fail<char>("mismatched char", "b"_i));
+static_assert(t(""_i) == fail<char>("eof while waiting for 'a'", ""_i));
+static_assert(t("a"_i) == fail<char>("expecting 'b' got ''", ""_i));
+static_assert(t("b"_i) == fail<char>("expecting 'a' got 'b'", "b"_i));
 static_assert(t("ab"_i) == output { 'a', ""_i });
 static_assert(t("aba"_i) == output { 'a', "a"_i });
 
@@ -55,11 +55,11 @@ static constexpr const auto t_fmap_0 = fmap(
     },
     match('1'));
 
-static_assert(t_fmap_0(""_i) == fail<int>("eof while waiting for char", ""_i));
+static_assert(t_fmap_0(""_i) == fail<int>("eof while waiting for '1'", ""_i));
 static_assert(t_fmap_0("1x"_i) == output { 1, "x"_i });
 
 static constexpr const auto t_fmap_1 = fmap(&std::string_view::size, match("uga"));
-static_assert(t_fmap_1("buga"_i) == fail<size_t>("mismatched string", "buga"_i));
+static_assert(t_fmap_1("buga"_i) == fail<size_t>("expecting 'uga' got 'bug'", "buga"_i));
 static_assert(t_fmap_1("ugauga"_i) == output { size_t { 3 }, "uga"_i });
 
 static constexpr const auto v = maybe(match('a'));

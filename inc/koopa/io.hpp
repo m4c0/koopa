@@ -32,7 +32,7 @@ namespace koopa {
     }
     [[nodiscard]] constexpr input take(size_t n) const noexcept {
       const auto nn = n > m_len ? m_len : n;
-      return input { std::string_view { m_data + nn, m_len - nn } };
+      return input { std::string_view { m_data + nn, m_len - nn } }; // NOLINT
     }
 
     [[nodiscard]] constexpr size_t distance(const input o) const noexcept {
@@ -103,6 +103,10 @@ namespace koopa {
   template<typename Tp>
   [[nodiscard]] static constexpr output<Tp> fail(std::string_view msg, const input in) noexcept {
     return output<Tp> { error { str { msg } }, in };
+  }
+  template<typename Tp>
+  [[nodiscard]] static constexpr output<Tp> fail(str && msg, const input in) noexcept {
+    return output<Tp> { error { msg }, in };
   }
 
   static constexpr input operator"" _i(const char * str, size_t len) noexcept {
