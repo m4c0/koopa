@@ -1,6 +1,7 @@
-#include "koopa/combiner.hpp"
-#include "koopa/constants.hpp"
-#include "koopa/matcher.hpp"
+import koopa;
+
+#include <optional>
+#include <string_view>
 
 using namespace koopa;
 using namespace std::string_view_literals;

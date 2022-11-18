@@ -1,8 +1,9 @@
-#pragma once
-
+module;
 #include <string_view>
 
-namespace koopa {
+export module koopa:str;
+
+export namespace koopa {
   class str {
     const char * m_data = "";
     size_t m_len = 0;
@@ -73,7 +74,7 @@ namespace koopa {
     }
   };
 
-  [[nodiscard]] static constexpr str operator"" _s(const char * c, size_t len) noexcept {
+  [[nodiscard]] inline constexpr str operator"" _s(const char * c, size_t len) noexcept {
     return str { c, len, false };
   }
 }

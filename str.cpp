@@ -1,4 +1,6 @@
-#include "koopa/str.hpp"
+import koopa;
+
+#include <string_view>
 
 using namespace koopa;
 using namespace std::string_view_literals;
