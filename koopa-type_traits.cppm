@@ -1,6 +1,3 @@
-module;
-#include <type_traits>
-
 export module koopa:type_traits;
 import traits;
 
@@ -25,5 +22,33 @@ namespace koopa {
                    };
 
   template<parser P>
-  using result_of = typename std::invoke_result_t<P, const input>::type;
+  using result_of = typename call_result_t<P, const input>::type;
+
+  template<typename T, typename I>
+  struct mapper_traits {
+    using result_t = call_result_t<T, I>;
+    static constexpr auto invoke(auto fn, auto in) {
+      return fn(in);
+    }
+  };
+
+  template<typename M, typename O>
+  struct mapper_traits<M(O::*), O> {
+    using T = M(O::*);
+    using result_t = decltype((declval<O>().*declval<T>())());
+    static constexpr auto invoke(M(O::*fn), auto in) {
+      return (in.*fn)();
+    }
+  };
+}
+
+namespace {
+  using namespace koopa;
+
+  struct dummy {
+    long test() const noexcept;
+    static long stest(int) noexcept;
+  };
+  static_assert(is_same_v<long, mapper_traits<decltype(&dummy::stest), int>::result_t>);
+  static_assert(is_same_v<long, mapper_traits<decltype(&dummy::test), dummy>::result_t>);
 }

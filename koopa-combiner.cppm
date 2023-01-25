@@ -1,16 +1,16 @@
 module;
 #include <optional>
 #include <string_view>
-#include <type_traits>
 
 export module koopa:combiner;
 import :io;
 import :type_traits;
+import traits;
 
 export namespace koopa {
   template<parser PA, parser PB, typename AB>
   inline constexpr auto combine(PA && pa, PB && pb, AB && fn) noexcept {
-    using T = std::invoke_result_t<AB, result_of<PA>, result_of<PB>>;
+    using T = call_result_t<AB, result_of<PA>, result_of<PB>>;
 
     return [pa, pb, fn](const input in) noexcept -> output<T> {
       const auto ra = pa(in);
@@ -82,15 +82,12 @@ export namespace koopa {
 
   template<parser P, typename F>
   inline constexpr auto fmap(F && f, P && p) noexcept {
-    using T = std::invoke_result_t<F, result_of<P>>;
+    using FT = mapper_traits<F, result_of<P>>;
+    using T = typename FT::result_t;
     return [f, p](input in) noexcept -> output<T> {
       const auto r = p(in);
       if (!r) return r.template with_error_type<T>();
-      if constexpr (std::is_member_function_pointer_v<F>) {
-        return r.with_value(((*r).*f)());
-      } else {
-        return r.with_value(f(*r));
-      }
+      return r.with_value(FT::invoke(f, *r));
     };
   }
 
