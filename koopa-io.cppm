@@ -4,6 +4,9 @@ module;
 export module koopa:io;
 import :str;
 import :type_traits;
+import traits;
+
+using namespace traits;
 
 export namespace koopa {
   class input {

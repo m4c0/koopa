@@ -2,17 +2,26 @@ module;
 #include <type_traits>
 
 export module koopa:type_traits;
+import traits;
 
-export namespace koopa {
+using namespace traits;
+
+namespace koopa {
   class input;
+  template<typename>
+  class output;
 
-  template<typename A, typename B>
-  concept not_same_as = !
-  std::is_same_v<A, B>;
+  template<typename T>
+  struct is_output_type : false_t {};
+  template<typename T>
+  struct is_output_type<output<T>> : true_t {};
+
+  template<typename O>
+  concept is_output = is_output_type<O>::value;
 
   template<typename P>
   concept parser = requires(P p, const input i) {
-                     { p(i) };
+                     { p(i) } -> is_output;
                    };
 
   template<parser P>
