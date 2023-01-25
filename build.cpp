@@ -1,18 +1,11 @@
-#include "ecow.hpp"
+#include "build.hpp"
 
 using namespace ecow;
 
 int main(int argc, char ** argv) {
   seq all { "all" };
 
-  auto m = all.add_unit<mod>("koopa");
-  m->add_part("str");
-  m->add_part("type_traits");
-  m->add_part("io");
-  m->add_part("binary");
-  m->add_part("combiner");
-  m->add_part("constants");
-  m->add_part("matcher");
+  all.add_ref(koopa());
 
   all.add_unit<>("binary");
   all.add_unit<>("combiner");
