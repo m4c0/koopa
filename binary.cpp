@@ -1,7 +1,7 @@
-#include "koopa/binary.hpp"
-#include "koopa/combiner.hpp"
+import koopa;
 
 #include <bit>
+#include <string_view>
 
 using namespace koopa;
 

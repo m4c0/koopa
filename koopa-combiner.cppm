@@ -1,13 +1,15 @@
-#pragma once
-
-#include "koopa/io.hpp"
-
+module;
 #include <optional>
+#include <string_view>
 #include <type_traits>
 
-namespace koopa {
+export module koopa:combiner;
+import :io;
+import :type_traits;
+
+export namespace koopa {
   template<parser PA, parser PB, typename AB>
-  static constexpr auto combine(PA && pa, PB && pb, AB && fn) noexcept {
+  inline constexpr auto combine(PA && pa, PB && pb, AB && fn) noexcept {
     using T = std::invoke_result_t<AB, result_of<PA>, result_of<PB>>;
 
     return [pa, pb, fn](const input in) noexcept -> output<T> {
@@ -22,7 +24,7 @@ namespace koopa {
   }
 
   template<parser PA, parser PB>
-  static constexpr auto operator,(PA && pa, PB && pb) noexcept {
+  inline constexpr auto operator,(PA && pa, PB && pb) noexcept {
     using T = result_of<PB>;
 
     return [pa, pb](const input in) noexcept -> output<T> {
@@ -37,7 +39,7 @@ namespace koopa {
   }
 
   template<parser PA, parser PB>
-  static constexpr auto operator-(PA && pa, PB && pb) noexcept {
+  inline constexpr auto operator-(PA && pa, PB && pb) noexcept {
     using T = result_of<PA>;
 
     return [pa, pb](const input in) noexcept -> output<T> {
@@ -52,7 +54,7 @@ namespace koopa {
   }
 
   template<parser PA, parser PB>
-  static constexpr auto operator|(PA && pa, PB && pb) noexcept {
+  inline constexpr auto operator|(PA && pa, PB && pb) noexcept {
     return [pa, pb](input in) noexcept -> output<result_of<PA>> {
       const auto ra = pa(in);
       if (ra) return ra;
@@ -63,7 +65,7 @@ namespace koopa {
   }
 
   template<parser P>
-  static constexpr auto maybe(P && p) noexcept {
+  inline constexpr auto maybe(P && p) noexcept {
     return [p](const input in) noexcept -> output<std::optional<result_of<P>>> {
       const auto r = p(in);
       const auto v = r ? std::optional { *r } : std::nullopt;
@@ -72,14 +74,14 @@ namespace koopa {
   }
 
   template<parser P, typename F>
-  static constexpr auto map(F && f, P && p) noexcept {
+  inline constexpr auto map(F && f, P && p) noexcept {
     return [f, p](input in) noexcept {
       return f(p(in));
     };
   }
 
   template<parser P, typename F>
-  static constexpr auto fmap(F && f, P && p) noexcept {
+  inline constexpr auto fmap(F && f, P && p) noexcept {
     using T = std::invoke_result_t<F, result_of<P>>;
     return [f, p](input in) noexcept -> output<T> {
       const auto r = p(in);
@@ -93,7 +95,7 @@ namespace koopa {
   }
 
   template<parser If, parser Then, parser Else>
-  static constexpr auto ifelse(If && i, Then && t, Else && e) noexcept {
+  inline constexpr auto ifelse(If && i, Then && t, Else && e) noexcept {
     using T = result_of<Then>;
     return [i, t, e](input in) noexcept -> output<T> {
       const auto pi = i(in);
@@ -102,7 +104,7 @@ namespace koopa {
   }
 
   template<parser P>
-  static constexpr auto until(P && p) noexcept {
+  inline constexpr auto until(P && p) noexcept {
     return [p](const input in) noexcept -> output<std::string_view> {
       input sin = in;
       int idx = 0;
@@ -115,7 +117,7 @@ namespace koopa {
   }
 
   template<parser P>
-  static constexpr auto whilst(P && p) noexcept {
+  inline constexpr auto whilst(P && p) noexcept {
     return [p](const input in) noexcept -> output<std::string_view> {
       input sin = in;
       // Much better would be:
@@ -131,7 +133,7 @@ namespace koopa {
   }
 
   template<typename T, parser P, typename Fn>
-  static constexpr auto agg(T && init, P && p, Fn && fn) noexcept {
+  inline constexpr auto agg(T && init, P && p, Fn && fn) noexcept {
     return [t = std::forward<T>(init), p = std::forward<P>(p), fn = std::forward<Fn>(fn)](const input in) noexcept {
       auto res = t;
       input sin = in;

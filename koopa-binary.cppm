@@ -1,8 +1,11 @@
-#pragma once
+module;
+#include <cstdint>
+#include <string_view>
 
-#include "koopa/io.hpp"
+export module koopa:binary;
+import :io;
 
-namespace koopa {
+export namespace koopa {
   [[nodiscard]] inline constexpr auto take_u8() noexcept {
     return [](input in) noexcept -> output<uint8_t> {
       if (!in) return fail<uint8_t>("eof while expecting u8", in);

@@ -1,11 +1,11 @@
-#pragma once
-
-#include "koopa/str.hpp"
-#include "koopa/type_traits.hpp"
-
+module;
 #include <string_view>
 
-namespace koopa {
+export module koopa:io;
+import :str;
+import :type_traits;
+
+export namespace koopa {
   class input {
     // As of 08/22, std::distance is not constexpr if we store string_views in Windows
     // Therefore, handcrafted substitute it is
@@ -43,7 +43,7 @@ namespace koopa {
   struct error {
     str message;
   };
-  [[nodiscard]] static constexpr auto operator==(const error & a, const error & b) noexcept {
+  [[nodiscard]] inline constexpr auto operator==(const error & a, const error & b) noexcept {
     return a.message == b.message;
   }
 
@@ -101,15 +101,15 @@ namespace koopa {
   output(Tp, input) -> output<Tp>;
 
   template<typename Tp>
-  [[nodiscard]] static constexpr output<Tp> fail(std::string_view msg, const input in) noexcept {
+  [[nodiscard]] inline constexpr output<Tp> fail(std::string_view msg, const input in) noexcept {
     return output<Tp> { error { str { msg } }, in };
   }
   template<typename Tp>
-  [[nodiscard]] static constexpr output<Tp> fail(str && msg, const input in) noexcept {
+  [[nodiscard]] inline constexpr output<Tp> fail(str && msg, const input in) noexcept {
     return output<Tp> { error { msg }, in };
   }
 
-  static constexpr input operator"" _i(const char * str, size_t len) noexcept {
+  inline constexpr input operator"" _i(const char * str, size_t len) noexcept {
     return input { std::string_view { str, len } };
   }
 }

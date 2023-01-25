@@ -1,4 +1,6 @@
-#include "koopa/io.hpp"
+import koopa;
+
+#include <string_view>
 
 using namespace koopa;
 
