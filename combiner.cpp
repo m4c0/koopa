@@ -63,13 +63,6 @@ static constexpr const auto t_fmap_1 = fmap(&std::string_view::size, match("uga"
 static_assert(t_fmap_1("buga"_i) == fail<size_t>("expecting 'uga' got 'bug'", "buga"_i));
 static_assert(t_fmap_1("ugauga"_i) == output { size_t { 3 }, "uga"_i });
 
-static constexpr const auto v = maybe(match('a'));
-
-static_assert(v(""_i) == output { std::optional<char> {}, ""_i });
-static_assert(v("b"_i) == output { std::optional<char> {}, "b"_i });
-static_assert(v("a"_i) == output { std::optional { 'a' }, ""_i });
-static_assert(v("ab"_i) == output { std::optional { 'a' }, "b"_i });
-
 static constexpr const auto w = map(
     [](const output<char> & o) noexcept -> output<int> {
       if (o) return o.with_value(3);

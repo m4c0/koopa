@@ -1,5 +1,4 @@
 module;
-#include <optional>
 #include <string_view>
 
 export module koopa:combiner;
@@ -61,15 +60,6 @@ export namespace koopa {
       const auto rb = pb(in);
       if (rb) return rb;
       return rb.with_error("expecting different alternative");
-    };
-  }
-
-  template<parser P>
-  inline constexpr auto maybe(P && p) noexcept {
-    return [p](const input in) noexcept -> output<std::optional<result_of<P>>> {
-      const auto r = p(in);
-      const auto v = r ? std::optional { *r } : std::nullopt;
-      return r.with_value(v);
     };
   }
 
