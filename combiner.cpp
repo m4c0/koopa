@@ -1,12 +1,12 @@
 import koopa;
-
-#include <optional>
-#include <string_view>
+import jute;
+import traits;
 
 using namespace koopa;
-using namespace std::string_view_literals;
+using namespace jute::literals;
+using namespace traits;
 
-static constexpr const auto p = combine(match('a'), match("b"), [](char a, std::string_view b) {
+static constexpr const auto p = combine(match('a'), match("b"), [](char a, jute::view b) {
   return a == 'a' && b == "b";
 });
 
@@ -28,19 +28,19 @@ static_assert(q("abcd"_i) == output { 'c', "d"_i });
 
 static constexpr const auto r = until(match('a'));
 
-static_assert(r(""_i) == output { ""sv, ""_i });
-static_assert(r("a"_i) == output { ""sv, "a"_i });
-static_assert(r("b"_i) == output { "b"sv, ""_i });
-static_assert(r("ab"_i) == output { ""sv, "ab"_i });
-static_assert(r("bbbab"_i) == output { "bbb"sv, "ab"_i });
+static_assert(r(""_i) == output { ""_s, ""_i });
+static_assert(r("a"_i) == output { ""_s, "a"_i });
+static_assert(r("b"_i) == output { "b"_s, ""_i });
+static_assert(r("ab"_i) == output { ""_s, "ab"_i });
+static_assert(r("bbbab"_i) == output { "bbb"_s, "ab"_i });
 
 static constexpr const auto s = whilst(match("ab"));
 
-static_assert(s(""_i) == output { ""sv, ""_i });
-static_assert(s("ab"_i) == output { "ab"sv, ""_i });
-static_assert(s("ababab"_i) == output { "ababab"sv, ""_i });
-static_assert(s("b"_i) == output { ""sv, "b"_i });
-static_assert(s("ababa"_i) == output { "abab"sv, "a"_i });
+static_assert(s(""_i) == output { ""_s, ""_i });
+static_assert(s("ab"_i) == output { "ab"_s, ""_i });
+static_assert(s("ababab"_i) == output { "ababab"_s, ""_i });
+static_assert(s("b"_i) == output { ""_s, "b"_i });
+static_assert(s("ababa"_i) == output { "abab"_s, "a"_i });
 
 static constexpr const auto t = match('a') - match("b");
 
@@ -59,16 +59,9 @@ static constexpr const auto t_fmap_0 = fmap(
 static_assert(t_fmap_0(""_i) == fail<int>("eof while waiting for '1'", ""_i));
 static_assert(t_fmap_0("1x"_i) == output { 1, "x"_i });
 
-static constexpr const auto t_fmap_1 = fmap(&std::string_view::size, match("uga"));
+static constexpr const auto t_fmap_1 = fmap(&jute::view::size, match("uga"));
 static_assert(t_fmap_1("buga"_i) == fail<size_t>("expecting 'uga' got 'bug'", "buga"_i));
 static_assert(t_fmap_1("ugauga"_i) == output { size_t { 3 }, "uga"_i });
-
-static constexpr const auto v = maybe(match('a'));
-
-static_assert(v(""_i) == output { std::optional<char> {}, ""_i });
-static_assert(v("b"_i) == output { std::optional<char> {}, "b"_i });
-static_assert(v("a"_i) == output { std::optional { 'a' }, ""_i });
-static_assert(v("ab"_i) == output { std::optional { 'a' }, "b"_i });
 
 static constexpr const auto w = map(
     [](const output<char> & o) noexcept -> output<int> {

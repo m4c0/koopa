@@ -1,9 +1,8 @@
-module;
-#include <cstdint>
-#include <string_view>
-
 export module koopa:binary;
 import :io;
+import traits;
+
+using namespace traits::ints;
 
 export namespace koopa {
   [[nodiscard]] inline constexpr auto take_u8() noexcept {

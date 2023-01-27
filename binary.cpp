@@ -1,12 +1,11 @@
 import koopa;
-
-#include <bit>
-#include <string_view>
+import traits;
 
 using namespace koopa;
+using namespace traits::ints;
 
 // Some tests are easier if defined as LE
-static_assert(std::endian::native == std::endian::little);
+static_assert(__BYTE_ORDER__ == __ORDER_LITTLE_ENDIAN__);
 
 static constexpr const auto t_u8 = take_u8();
 static_assert(t_u8(""_i) == fail<uint8_t>("eof while expecting u8", ""_i));

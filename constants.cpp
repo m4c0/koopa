@@ -1,4 +1,4 @@
-#include "koopa/constants.hpp"
+import koopa;
 
 using namespace koopa;
 
@@ -10,5 +10,6 @@ static constexpr const auto f = failure<int>("meh");
 static_assert(f(""_i) == fail<int>("meh", ""_i));
 static_assert(f("abc"_i) == fail<int>("meh", "abc"_i));
 
+using nullptr_t = decltype(nullptr);
 static_assert(eof(""_i) == output<nullptr_t> { nullptr, ""_i });
 static_assert(eof("a"_i) == fail<nullptr_t>("expecting eof", "a"_i));

@@ -19,7 +19,7 @@ jobs:
         with:
           os: ${{ matrix.os }}
       - name: 🧀 Prepare Deps
-        uses: m4c0/koopa/.github/actions/deps@main
+        uses: m4c0/koopa/.github/actions/deps@nostl
       - name: 🔨 Build
         uses: m4c0/ecow/.github/actions/compile@main
         with:

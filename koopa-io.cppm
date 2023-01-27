@@ -1,42 +1,40 @@
-module;
-#include <string_view>
-
 export module koopa:io;
 import :str;
 import :type_traits;
+import jute;
+import traits;
+
+using namespace traits;
 
 export namespace koopa {
   class input {
-    // As of 08/22, std::distance is not constexpr if we store string_views in Windows
-    // Therefore, handcrafted substitute it is
-    const char * m_data;
-    size_t m_len;
+    jute::view m_data;
 
   public:
-    explicit constexpr input(std::string_view c) noexcept : m_data { c.data() }, m_len { c.size() } {
+    explicit constexpr input(jute::view c) noexcept : m_data { c } {
     }
 
     [[nodiscard]] constexpr explicit operator bool() const noexcept {
-      return m_len > 0;
+      return m_data.size() > 0;
     }
 
     [[nodiscard]] constexpr bool operator==(const input & o) const noexcept {
-      return std::string_view { m_data, m_len } == std::string_view { o.m_data, o.m_len };
+      return m_data == o.m_data;
     }
 
     [[nodiscard]] constexpr char peek() const noexcept {
-      return *m_data;
+      return m_data[0];
     }
-    [[nodiscard]] constexpr std::string_view peek(size_t n) const noexcept {
-      return std::string_view { m_data, n > m_len ? m_len : n };
+    [[nodiscard]] constexpr jute::view peek(size_t n) const noexcept {
+      return m_data.subview(n).before;
     }
     [[nodiscard]] constexpr input take(size_t n) const noexcept {
-      const auto nn = n > m_len ? m_len : n;
-      return input { std::string_view { m_data + nn, m_len - nn } }; // NOLINT
+      return input { m_data.subview(n).after }; // NOLINT
     }
 
     [[nodiscard]] constexpr size_t distance(const input o) const noexcept {
-      return std::distance(o.m_data, m_data);
+      if (m_data.size() == 0) return o.m_data.size();
+      return m_data.data() - o.m_data.data();
     }
   };
 
@@ -56,13 +54,13 @@ export namespace koopa {
   public:
     using type = Tp;
 
-    constexpr output(error v, input r) noexcept : m_error(std::move(v)), m_remainder(r) {
+    constexpr output(error v, input r) noexcept : m_error(static_cast<struct error &&>(v)), m_remainder(r) {
     }
     constexpr output(Tp v, input r) noexcept : m_value(v), m_remainder(r) {
     }
 
     [[nodiscard]] constexpr explicit operator bool() const noexcept {
-      return (*(m_error.message)).empty();
+      return (*(m_error.message)).size() == 0;
     }
     [[nodiscard]] constexpr const Tp & operator*() const noexcept {
       return m_value;
@@ -79,12 +77,12 @@ export namespace koopa {
       return m_remainder;
     }
 
-    template<typename T = Tp>
-    [[nodiscard]] constexpr output<T> with_cause(auto v) const noexcept {
-      using namespace std::string_view_literals;
-      return output<T> { koopa::error { m_error.message + "\ncaused by: " + v }, m_remainder };
+    template<typename T = Tp, unsigned N>
+    [[nodiscard]] constexpr output<T> with_cause(const char (&v)[N]) const noexcept {
+      using namespace jute::literals;
+      return output<T> { koopa::error { m_error.message + "\ncaused by: "_s + v }, m_remainder };
     }
-    [[nodiscard]] constexpr output<Tp> with_error(std::string_view msg) const noexcept {
+    [[nodiscard]] constexpr output<Tp> with_error(jute::view msg) const noexcept {
       return output<Tp> { koopa::error { str { msg } }, m_remainder };
     }
     template<typename T>
@@ -101,7 +99,7 @@ export namespace koopa {
   output(Tp, input) -> output<Tp>;
 
   template<typename Tp>
-  [[nodiscard]] inline constexpr output<Tp> fail(std::string_view msg, const input in) noexcept {
+  [[nodiscard]] inline constexpr output<Tp> fail(jute::view msg, const input in) noexcept {
     return output<Tp> { error { str { msg } }, in };
   }
   template<typename Tp>
@@ -110,6 +108,6 @@ export namespace koopa {
   }
 
   inline constexpr input operator"" _i(const char * str, size_t len) noexcept {
-    return input { std::string_view { str, len } };
+    return input { jute::view { str, len } };
   }
 }
