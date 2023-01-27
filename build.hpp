@@ -1,5 +1,6 @@
 #pragma once
 
+#include "../jute/build.hpp"
 #include "../traits/build.hpp"
 #include "ecow.hpp"
 
@@ -7,6 +8,7 @@ auto koopa() {
   using namespace ecow;
 
   auto m = unit::create<mod>("koopa");
+  m->add_wsdep("jute", jute());
   m->add_wsdep("traits", traits());
   m->add_part("str");
   m->add_part("type_traits");

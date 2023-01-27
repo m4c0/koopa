@@ -1,9 +1,7 @@
-module;
-#include <string_view>
-
 export module koopa:combiner;
 import :io;
 import :type_traits;
+import jute;
 import traits;
 
 export namespace koopa {
@@ -92,7 +90,7 @@ export namespace koopa {
 
   template<parser P>
   inline constexpr auto until(P && p) noexcept {
-    return [p](const input in) noexcept -> output<std::string_view> {
+    return [p](const input in) noexcept -> output<jute::view> {
       input sin = in;
       int idx = 0;
       while (sin && !p(sin)) {
@@ -105,7 +103,7 @@ export namespace koopa {
 
   template<parser P>
   inline constexpr auto whilst(P && p) noexcept {
-    return [p](const input in) noexcept -> output<std::string_view> {
+    return [p](const input in) noexcept -> output<jute::view> {
       input sin = in;
       // Much better would be:
       // while (const auto r = p(sin)) {
@@ -121,12 +119,12 @@ export namespace koopa {
 
   template<typename T, parser P, typename Fn>
   inline constexpr auto agg(T && init, P && p, Fn && fn) noexcept {
-    return [t = std::forward<T>(init), p = std::forward<P>(p), fn = std::forward<Fn>(fn)](const input in) noexcept {
+    return [t = traits::fwd<T>(init), p = traits::fwd<P>(p), fn = traits::fwd<Fn>(fn)](const input in) noexcept {
       auto res = t;
       input sin = in;
       auto r = p(sin); // See `whilst`
       while (r) {
-        if constexpr (std::is_member_function_pointer_v<Fn>) {
+        if constexpr (is_mem_fn<Fn>::value) {
           (res.*fn)(*r);
         } else {
           res = fn(res, *r);

@@ -31,15 +31,19 @@ namespace koopa {
       return fn(in);
     }
   };
-
   template<typename M, typename O>
   struct mapper_traits<M(O::*), O> {
     using T = M(O::*);
     using result_t = decltype((declval<O>().*declval<T>())());
-    static constexpr auto invoke(M(O::*fn), auto in) {
+    static constexpr auto invoke(M(O::*fn), const auto in) {
       return (in.*fn)();
     }
   };
+
+  template<typename T>
+  struct is_mem_fn : false_t {};
+  template<typename M, typename O>
+  struct is_mem_fn<M(O::*)> : true_t {};
 }
 
 namespace {
