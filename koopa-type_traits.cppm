@@ -16,12 +16,12 @@ namespace koopa {
   template<typename O>
   concept is_output = is_output_type<O>::value;
 
-  template<typename P>
+  export template<typename P>
   concept parser = requires(P p, const input i) {
                      { p(i) } -> is_output;
                    };
 
-  template<parser P>
+  export template<parser P>
   using result_of = typename call_result_t<P, const input>::type;
 
   template<typename T, typename I>
