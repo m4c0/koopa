@@ -77,10 +77,9 @@ export namespace koopa {
       return m_remainder;
     }
 
-    template<typename T = Tp, unsigned N>
-    [[nodiscard]] constexpr output<T> with_cause(const char (&v)[N]) const noexcept {
-      using namespace jute::literals;
-      return output<T> { koopa::error { m_error.message + "\ncaused by: "_s + v }, m_remainder };
+    template<typename T = Tp>
+    [[nodiscard]] constexpr output<T> with_cause(auto v) const noexcept {
+      return output<T> { koopa::error { m_error.message + "\ncaused by: " + v }, m_remainder };
     }
     [[nodiscard]] constexpr output<Tp> with_error(jute::view msg) const noexcept {
       return output<Tp> { koopa::error { str { msg } }, m_remainder };
