@@ -33,4 +33,4 @@ static_assert(fail<char>("nok", "bb"_i) != fail<char>("ok", "bb"_i));
 static_assert(output { 'a', "b"_i }.with_value('c') == output { 'c', "b"_i });
 static_assert(fail<char>("ok", "bb"_i).with_error("nok") == fail<char>("nok", "bb"_i));
 static_assert(fail<char>("ok", "bb"_i).with_error_type<int>() == fail<int>("ok", "bb"_i));
-static_assert(fail<char>("ok", "bb"_i).with_cause<int>("ish") == fail<int>("ok\ncaused by: ish", "bb"_i));
+static_assert(fail<char>("ok", "bb"_i).with_cause<int>("ish"_ks) == fail<int>("ok\ncaused by: ish", "bb"_i));
