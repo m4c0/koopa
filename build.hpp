@@ -10,7 +10,6 @@ auto koopa() {
   auto m = unit::create<mod>("koopa");
   m->add_wsdep("jute", jute());
   m->add_wsdep("traits", traits());
-  m->add_part("str");
   m->add_part("type_traits");
   m->add_part("io");
   m->add_part("binary");

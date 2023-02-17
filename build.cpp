@@ -15,7 +15,6 @@ int main(int argc, char ** argv) {
   all.add_unit<>("dummy");
   all.add_unit<>("io");
   all.add_unit<>("matcher");
-  all.add_unit<>("str");
 
   return run_main(all, argc, argv);
 }

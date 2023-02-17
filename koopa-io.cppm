@@ -1,5 +1,4 @@
 export module koopa:io;
-import :str;
 import :type_traits;
 import jute;
 import traits;
@@ -39,7 +38,7 @@ export namespace koopa {
   };
 
   struct error {
-    str message;
+    jute::heap message;
   };
   [[nodiscard]] inline constexpr auto operator==(const error & a, const error & b) noexcept {
     return a.message == b.message;
@@ -82,7 +81,7 @@ export namespace koopa {
       return output<T> { koopa::error { m_error.message + "\ncaused by: " + v }, m_remainder };
     }
     [[nodiscard]] constexpr output<Tp> with_error(jute::view msg) const noexcept {
-      return output<Tp> { koopa::error { str { msg } }, m_remainder };
+      return output<Tp> { koopa::error { jute::heap { msg } }, m_remainder };
     }
     template<typename T>
     [[nodiscard]] constexpr output<T> with_error_type() const noexcept {
@@ -99,10 +98,10 @@ export namespace koopa {
 
   template<typename Tp>
   [[nodiscard]] inline constexpr output<Tp> fail(jute::view msg, const input in) noexcept {
-    return output<Tp> { error { str { msg } }, in };
+    return output<Tp> { error { jute::heap { msg } }, in };
   }
   template<typename Tp>
-  [[nodiscard]] inline constexpr output<Tp> fail(str && msg, const input in) noexcept {
+  [[nodiscard]] inline constexpr output<Tp> fail(jute::heap && msg, const input in) noexcept {
     return output<Tp> { error { msg }, in };
   }
 
